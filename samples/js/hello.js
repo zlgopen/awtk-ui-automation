@@ -8,7 +8,7 @@ let wd = require("wd"),
       serverConfigs = require('./helpers/appium-servers');
 let startApp = require("./helpers/start-app").startApp;
 
-const appName = '../bin/demo'
+const appName = '../../bin/demo'
 describe("awtk simple", function () {
       let driver;
       let allPassed = true;
