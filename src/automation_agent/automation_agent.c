@@ -410,6 +410,21 @@ static ret_t automation_agent_on_get_element(http_connection_t* c) {
   return RET_OK;
 }
 
+static ret_t automation_agent_on_get_elements(http_connection_t* c) {
+  conf_doc_t* req = c->req;
+  conf_doc_t* resp = c->resp;
+  const char* using = conf_doc_get_str(req, STR_USING, NULL);
+  const char* value = conf_doc_get_str(req, STR_VALUE, NULL);
+  return_value_if_fail(using != NULL && value != NULL, RET_BAD_PARAMS);
+
+  if (tk_str_ieq(using, "id")) {
+    conf_doc_set_int(resp, STR_STATUS, 0);
+    conf_doc_set_str(resp, "value.[0].ELEMENT", value);
+  }
+
+  return RET_OK;
+}
+
 static ret_t automation_agent_on_get_focus_element(http_connection_t* c) {
   conf_doc_t* resp = c->resp;
   widget_t* wm = window_manager();
@@ -640,6 +655,7 @@ static const http_route_entry_t s_automation_agent_routes[] = {
     {HTTP_POST, "/wd/hub/session/:session/window/frame/parent", automation_agent_on_not_impl},
 
     {HTTP_POST, "/wd/hub/session/:session/element", automation_agent_on_get_element},
+    {HTTP_POST, "/wd/hub/session/:session/elements", automation_agent_on_get_elements},
     {HTTP_GET, "/wd/hub/session/:session/element/active", automation_agent_on_get_focus_element},
     {HTTP_POST, "/wd/hub/session/:session/element/active", automation_agent_on_get_focus_element},
 
