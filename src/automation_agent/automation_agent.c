@@ -104,7 +104,7 @@ static ret_t automation_agent_on_get_source(http_connection_t* c) {
   return_value_if_fail(element != NULL, RET_NOT_FOUND);
 
   str_init(&str, 100000);
-  widget_to_xml(element, &str);
+  widget_to_xml(wm, &str);
   conf_doc_set_int(resp, STR_STATUS, 0);
   conf_doc_set_str(resp, STR_VALUE, str.str);
   str_reset(&str);
