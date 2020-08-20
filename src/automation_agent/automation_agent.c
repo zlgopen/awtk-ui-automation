@@ -33,6 +33,7 @@
 #define STR_X "x"
 #define STR_Y "y"
 #define STR_MS "ms"
+#define STR_ID "id"
 #define STR_WIDTH "width"
 #define STR_HEIGHT "height"
 #define STR_TYPE "type"
@@ -47,6 +48,7 @@
 #define STR_ATTRIBUTE "attribute"
 #define STR_ELEMENT_ID "element"
 #define STR_SESSION_ID "session"
+#define STR_ACCESS_ID "accessibility id"
 
 static widget_t* automation_agent_find_element(const char* name) {
   widget_t* wm = window_manager();
@@ -402,7 +404,7 @@ static ret_t automation_agent_on_get_element(http_connection_t* c) {
   const char* value = conf_doc_get_str(req, STR_VALUE, NULL);
   return_value_if_fail(using != NULL && value != NULL, RET_BAD_PARAMS);
 
-  if (tk_str_ieq(using, "id")) {
+  if (tk_str_ieq(using, STR_ID) || tk_str_ieq(using, STR_ACCESS_ID)) {
     conf_doc_set_int(resp, STR_STATUS, 0);
     conf_doc_set_str(resp, "value.ELEMENT", value);
   }
@@ -417,7 +419,7 @@ static ret_t automation_agent_on_get_elements(http_connection_t* c) {
   const char* value = conf_doc_get_str(req, STR_VALUE, NULL);
   return_value_if_fail(using != NULL && value != NULL, RET_BAD_PARAMS);
 
-  if (tk_str_ieq(using, "id")) {
+  if (tk_str_ieq(using, STR_ID) || tk_str_ieq(using, STR_ACCESS_ID)) {
     conf_doc_set_int(resp, STR_STATUS, 0);
     conf_doc_set_str(resp, "value.[0].ELEMENT", value);
   }
