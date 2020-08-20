@@ -34,6 +34,7 @@
 #define STR_Y "y"
 #define STR_MS "ms"
 #define STR_ID "id"
+#define STR_TAP "tap"
 #define STR_WIDTH "width"
 #define STR_HEIGHT "height"
 #define STR_TYPE "type"
@@ -457,6 +458,40 @@ static ret_t automation_agent_on_click_element(http_connection_t* c) {
   return RET_OK;
 }
 
+static ret_t automation_agent_on_touch_perform(http_connection_t* c) {
+  int i = 0;
+  int x = 0;
+  int y = 0;
+  char path[256];
+  pointer_event_t evt;
+  const char* action = NULL;
+  conf_doc_t* resp = c->resp;
+  widget_t* wm = window_manager();
+  int nr = conf_doc_get_int(c->req, "actions.#size", 0);
+  return_value_if_fail(wm != NULL, RET_NOT_FOUND);
+
+  memset(path, 0x00, sizeof(path));
+  for(i = 0; i < nr; i++) {
+    tk_snprintf(path, sizeof(path), "actions.[%d].action", i);
+    action = conf_doc_get_str(c->req, path, NULL);
+
+    tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
+    x = conf_doc_get_int(c->req, path, 0);
+
+    tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
+    y = conf_doc_get_int(c->req, path, 0);
+
+    if(tk_str_eq(action, STR_TAP)) {
+      window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_DOWN, wm, x, y));
+      window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_UP, wm, x, y));
+    }
+  }
+
+  conf_doc_set_int(resp, STR_STATUS, 0);
+
+  return RET_OK;
+}
+
 static ret_t automation_agent_on_clear_element(http_connection_t* c) {
   conf_doc_t* resp = c->resp;
   const char* id = object_get_prop_str(c->args, STR_ELEMENT_ID);
@@ -655,6 +690,7 @@ static const http_route_entry_t s_automation_agent_routes[] = {
     {HTTP_POST, "/wd/hub/session/:session/window/new", automation_agent_on_not_impl},
     {HTTP_POST, "/wd/hub/session/:session/window/frame", automation_agent_on_not_impl},
     {HTTP_POST, "/wd/hub/session/:session/window/frame/parent", automation_agent_on_not_impl},
+    {HTTP_POST, "/wd/hub/session/:session/touch/perform", automation_agent_on_touch_perform},
 
     {HTTP_POST, "/wd/hub/session/:session/element", automation_agent_on_get_element},
     {HTTP_POST, "/wd/hub/session/:session/elements", automation_agent_on_get_elements},

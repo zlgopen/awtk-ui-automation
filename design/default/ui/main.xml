@@ -3,9 +3,11 @@
   <label x="c" y="m" w="80%" h="30" name="info" text="Hello"/>
   <edit x="c" y="m:40" w="80%" h="30" name="edit" text="Hello AWTK"/>
   <check_button x="c" y="m:80" w="80%" h="30" name="remember" text="Remember" value="1"/>
-  
+
   <button x="c" y="b:80" w="128" h="30" name="new" text="New Window"/>
-  <button x="c:-100" y="b:30" w="80" h="30" name="start" text="Start"/>
-  <button x="c" y="b:30" w="80" h="30" name="stop" text="Stop"/>
-  <button x="c:100" y="b:30" w="80" h="30" name="close" text="Close"/>
+  <row x="c" y="b:20" w="100%" h="30">
+    <button x="c:-100" y="m" w="80" h="30" name="start" text="Start"/>
+    <button x="c" y="m" w="80" h="30" name="stop" text="Stop"/>
+    <button x="c:100" y="m" w="80" h="30" name="close" text="Close"/>
+  </row>
 </window>
