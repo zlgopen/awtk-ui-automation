@@ -748,10 +748,23 @@ static const http_route_entry_t s_automation_agent_routes[] = {
      automation_agent_on_set_element_value},
 };
 
-ret_t automation_agent_start(httpd_t* httpd) {
+static httpd_t* s_httpd;
+ret_t automation_agent_start(int port) {
+  httpd_t* httpd = httpd_create(8000, 1); 
   return_value_if_fail(httpd != NULL, RET_BAD_PARAMS);
 
   httpd_set_routes(httpd, s_automation_agent_routes, ARRAY_SIZE(s_automation_agent_routes));
 
+  s_httpd = httpd;
   return httpd_start(httpd);
 }
+
+ret_t automation_agent_stop(void) {
+  return_value_if_fail(s_httpd != NULL, RET_BAD_PARAMS);
+
+  httpd_destroy(s_httpd);
+  s_httpd = NULL;
+
+  return RET_OK;
+}
+

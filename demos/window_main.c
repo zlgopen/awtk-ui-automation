@@ -42,12 +42,9 @@ static ret_t window_main_create(void) {
 }
 
 
-static httpd_t* s_httpd = NULL;
 ret_t application_init(void) {
-  s_httpd = httpd_create(8000, 1);
-
   socket_init();
-  automation_agent_start(s_httpd);
+  automation_agent_start(8000);
   window_main_create();
 
   return RET_OK;
@@ -58,7 +55,7 @@ ret_t application_init(void) {
  */
 ret_t application_exit(void) {
   log_debug("application_exit\n");
-  httpd_destroy(s_httpd);
+  automation_agent_stop();
   socket_deinit();
   return RET_OK;
 }

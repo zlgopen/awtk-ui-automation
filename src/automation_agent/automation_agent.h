@@ -28,12 +28,20 @@ BEGIN_C_DECLS
 
 /**
  * @method automation_agent_start
- * 销毁darray对象。
- * @param {darray_t*} darray 数组对象。
+ * 启动测试代理。
+ * @param {int} port 监听端口号。
  *
  * @return {ret_t} 返回RET_OK表示成功，否则表示失败。
  */
-ret_t automation_agent_start(httpd_t* httpd);
+ret_t automation_agent_start(int port);
+
+/**
+ * @method automation_agent_stop
+ * 停止测试代理。
+ *
+ * @return {ret_t} 返回RET_OK表示成功，否则表示失败。
+ */
+ret_t automation_agent_stop(void);
 
 END_C_DECLS
 
