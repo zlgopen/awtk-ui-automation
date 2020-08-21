@@ -55,12 +55,13 @@
 #define STR_ELEMENT_ID "element"
 #define STR_SESSION_ID "session"
 #define STR_ACCESS_ID "accessibility id"
+#define STR_CURRENT_WINDOW "current_window"
 
 static widget_t* automation_agent_find_element(const char* name) {
   widget_t* wm = window_manager();
   widget_t* win = window_manager_get_top_window(wm);
 
-  if (tk_str_eq(win->name, name)) {
+  if (tk_str_eq(win->name, name) || tk_str_eq(STR_CURRENT_WINDOW, name)) {
     return win;
   }
 
