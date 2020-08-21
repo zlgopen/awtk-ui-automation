@@ -27,6 +27,7 @@
 #include "automation_agent.h"
 #include "awtk_global.h"
 #include "base/window.h"
+#include "widgets/view.h"
 #include "base/window_manager.h"
 #include "ui_loader/ui_serializer.h"
 
@@ -105,13 +106,21 @@ static ret_t automation_agent_on_set_url(http_connection_t* c) {
 
 static ret_t automation_agent_on_get_source(http_connection_t* c) {
   str_t str;
+  widget_t* view = NULL;
   conf_doc_t* resp = c->resp;
   widget_t* wm = window_manager();
   widget_t* element = window_manager_get_top_window(wm);
   return_value_if_fail(element != NULL, RET_NOT_FOUND);
 
   str_init(&str, 100000);
-  widget_to_xml(wm, &str);
+  view = view_create(NULL, 0, 0, wm->w, wm->h);
+  view->children = darray_create(1, NULL, NULL);
+  /*appium get the first child to show*/
+  darray_push(view->children, element);
+  widget_to_xml(view, &str);
+  view->children->size = 0;
+  widget_destroy(view);
+
   conf_doc_set_int(resp, STR_STATUS, 0);
   conf_doc_set_str(resp, STR_VALUE, str.str);
   str_reset(&str);
@@ -164,7 +173,7 @@ static ret_t automation_agent_on_get_screenshot(http_connection_t* c) {
   widget_t* element = window_manager_get_top_window(wm);
 
   return_value_if_fail(element != NULL, RET_NOT_FOUND);
-  t = widget_take_snapshot(element);
+  t = widget_take_snapshot(wm);
   return_value_if_fail(t != NULL, RET_BAD_PARAMS);
 
   tdata = bitmap_lock_buffer_for_write(t);
