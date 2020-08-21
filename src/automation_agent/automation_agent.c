@@ -35,10 +35,14 @@
 #define STR_MS "ms"
 #define STR_ID "id"
 #define STR_TAP "tap"
-#define STR_WIDTH "width"
-#define STR_HEIGHT "height"
+#define STR_PRESS "press"
+#define STR_WAIT "wait"
+#define STR_MOVE_TO "moveTo"
+#define STR_RELEASE "release"
 #define STR_TYPE "type"
 #define STR_NAME "name"
+#define STR_WIDTH "width"
+#define STR_HEIGHT "height"
 #define STR_USING "using"
 #define STR_HANDLE "handle"
 #define STR_STATUS "status"
@@ -85,7 +89,7 @@ static ret_t automation_agent_on_new_session(http_connection_t* c) {
   conf_doc_t* resp = c->resp;
 
   conf_doc_set_int(resp, STR_STATUS, 0);
-  conf_doc_set_str(resp, "value.sessionId", "1234");
+  conf_doc_set_str(resp, "value.sessionId", "8888");
   conf_doc_set_str(resp, "value.capabilities.platformName", "awtk");
 
   return RET_OK;
@@ -475,15 +479,29 @@ static ret_t automation_agent_on_touch_perform(http_connection_t* c) {
     tk_snprintf(path, sizeof(path), "actions.[%d].action", i);
     action = conf_doc_get_str(c->req, path, NULL);
 
-    tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
-    x = conf_doc_get_int(c->req, path, 0);
-
-    tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
-    y = conf_doc_get_int(c->req, path, 0);
-
     if(tk_str_eq(action, STR_TAP)) {
+      tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
+      x = conf_doc_get_int(c->req, path, 0);
+      tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
+      y = conf_doc_get_int(c->req, path, 0);
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_DOWN, wm, x, y));
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_UP, wm, x, y));
+    } else if(tk_str_eq(action, STR_PRESS)) {
+      tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
+      x = conf_doc_get_int(c->req, path, 0);
+      tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
+      y = conf_doc_get_int(c->req, path, 0);
+      window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_DOWN, wm, x, y));
+    } else if(tk_str_eq(action, STR_MOVE_TO)) {
+      tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
+      x = conf_doc_get_int(c->req, path, 0);
+      tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
+      y = conf_doc_get_int(c->req, path, 0);
+      window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_MOVE, wm, x, y));
+    } else if(tk_str_eq(action, STR_RELEASE)) {
+      window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_UP, wm, x, y));
+    } else {
+      log_debug("not suported:%s\n", action);
     }
   }
 
