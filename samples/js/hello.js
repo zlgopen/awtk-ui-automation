@@ -1,8 +1,6 @@
-"use strict";
-
-let Q = require('q'),
-let wd = require("wd"),
-let _ = require('underscore'),
+let Q = require('q');
+let wd = require("wd");
+let _ = require('underscore');
 require("awtk-appium-js-helpers/setup.js");
 let serverConfigs = require('awtk-appium-js-helpers/appium-servers');
 let startApp = require("awtk-appium-js-helpers/start-app").startApp;
@@ -26,8 +24,7 @@ describe("awtk simple", function () {
       });
 
       after(function () {
-            return driver
-                  .quit()
+            return driver.quit()
       });
 
       afterEach(function () {
