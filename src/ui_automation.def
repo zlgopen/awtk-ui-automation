@@ -1,2 +1,4 @@
 LIBRARY   ui_automation
 EXPORTS
+    automation_agent_start @1
+    automation_agent_stop @2

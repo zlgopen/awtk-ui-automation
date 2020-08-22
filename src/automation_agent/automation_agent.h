@@ -27,6 +27,12 @@
 BEGIN_C_DECLS
 
 /**
+ * @class automation_agent_t
+ * @annotation ["fake"]
+ * 测试代理。
+ */
+
+/**
  * @method automation_agent_start
  * 启动测试代理。
  * @param {int} port 监听端口号。

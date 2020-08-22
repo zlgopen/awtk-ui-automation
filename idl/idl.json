@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "type": "class",
+    "methods": [
+      {
+        "params": [
+          {
+            "type": "int",
+            "name": "port",
+            "desc": "监听端口号。"
+          }
+        ],
+        "annotation": {},
+        "desc": "启动测试代理。",
+        "name": "automation_agent_start",
+        "return": {
+          "type": "ret_t",
+          "desc": "返回RET_OK表示成功，否则表示失败。"
+        }
+      },
+      {
+        "params": [],
+        "annotation": {},
+        "desc": "停止测试代理。",
+        "name": "automation_agent_stop",
+        "return": {
+          "type": "ret_t",
+          "desc": "返回RET_OK表示成功，否则表示失败。"
+        }
+      }
+    ],
+    "events": [],
+    "properties": [],
+    "header": "automation_agent/automation_agent.h",
+    "desc": "测试代理。",
+    "name": "automation_agent_t",
+    "annotation": {
+      "fake": true
+    },
+    "level": 1
+  }
+]
