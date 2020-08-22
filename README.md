@@ -35,3 +35,7 @@ cd awtk-ui-automation; scons
 ./bin/demo
 ```
 
+## 文档
+
+* [安装支持 AWTK 自动测试的 Appium Desktop](docs/how_to_install_appium_for_awtk.md)
+
