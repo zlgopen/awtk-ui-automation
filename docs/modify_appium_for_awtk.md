@@ -43,3 +43,35 @@ npm install --save git+https://github.com/zlgopen/appium-awtk-driver.git
 npm install
 npm run build
 ```
+
+## 3. 其它
+
+当时有个问题折腾了很久：appium-desktop 的 inspector 无法显示源码，后来发现 inspector 取得 DOM tree 中第一个节点来显示。
+
+后来只好用一个 view 把窗口包起来：
+
+```c
+static ret_t automation_agent_on_get_source(http_connection_t* c) {
+  str_t str;
+  widget_t* view = NULL;
+  conf_doc_t* resp = c->resp;
+  widget_t* wm = window_manager();
+  widget_t* element = window_manager_get_top_window(wm);
+  return_value_if_fail(element != NULL, RET_NOT_FOUND);
+
+  str_init(&str, 100000);
+  view = view_create(NULL, 0, 0, wm->w, wm->h);
+  view->children = darray_create(1, NULL, NULL);
+  /*appium get the first child to show*/
+  darray_push(view->children, element);
+  widget_to_xml(view, &str);
+  view->children->size = 0;
+  widget_destroy(view);
+
+  conf_doc_set_int(resp, STR_STATUS, 0);
+  conf_doc_set_str(resp, STR_VALUE, str.str);
+  str_reset(&str);
+
+  return RET_OK;
+}
+```
