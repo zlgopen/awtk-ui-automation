@@ -35,6 +35,8 @@ npm run build
 cd ../../../../
 ```
 
+> npm install 出现错误，可以不用管它。
+
 ## 2. 启动 Appium-desktop
 
 运行 Appium.exe 命令：
