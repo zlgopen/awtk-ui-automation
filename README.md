@@ -1,6 +1,6 @@
 # awtk-ui-automation
 
-AWTK UI 自动化测试代理（试验阶段。..)。
+AWTK 自动化测试引擎
 
 ## 准备
 
