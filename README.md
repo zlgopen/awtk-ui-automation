@@ -1,6 +1,6 @@
 # awtk-ui-automation
 
-AWTK 自动化测试引擎
+AWTK 自动化测试引擎，兼容 appium 接口，轻松实现 UI 全自动化测试。
 
 ## 准备
 
@@ -31,8 +31,13 @@ cd awtk-ui-automation; scons
 ./scripts/update_res.py all
 ```
 
+* 1. 启动Appium-desktop
+
+* 2. 运行测试
+
 ```
-./bin/demo
+cd uitests
+npm run test
 ```
 
 ## 文档
