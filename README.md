@@ -2,6 +2,11 @@
 
 AWTK 自动化测试引擎，兼容 appium 接口，轻松实现 UI 全自动化测试。
 
+
+![](docs/images/ui.png)
+
+![](docs/images/inspector_3.png)
+
 ## 准备
 
 1. 获取 awtk 并编译
