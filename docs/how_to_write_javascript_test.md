@@ -157,15 +157,6 @@ driver 对象是测试程序客户端的对象，通过它调用测试函数。
       });
 ```
 
-* 示例：修改控件的文本
-
-```js
-      it("set text", function () {
-            return driver.elementById('info').setText("AWTK")
-                  .elementById('info').text().should.become("AWTK");
-      });
-```
-
 * 示例：点击按钮
 
 ```js
