@@ -45,6 +45,6 @@ cd awtk-ui-automation; scons
 
 * 4.[让 Appium 支持 AWTK 的笔记](docs/modify_appium_for_awtk.md)
 
-* 5.[Appium + AWTK 工作原理](how_appium_awtk_works.md)
+* 5.[Appium + AWTK 工作原理](docs/how_appium_awtk_works.md)
 
 * 6.[完整示例](https://github.com/zlgopen/awtk-mvvm-c-hello)
