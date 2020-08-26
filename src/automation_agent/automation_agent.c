@@ -156,7 +156,8 @@ static ret_t automation_agent_on_get_context(http_connection_t* c) {
 }
 
 #define STB_IMAGE_STATIC 1
-#define STBI_WRITE_NO_STDIO
+#define STBI_WRITE_NO_STDIO 1
+#define STB_IMAGE_WRITE_STATIC 1
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_FREE TKMEM_FREE
 #define STBI_MALLOC TKMEM_ALLOC
