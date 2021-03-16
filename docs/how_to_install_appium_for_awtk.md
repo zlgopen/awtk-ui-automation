@@ -37,6 +37,18 @@ cd ../../../../
 
 > npm install 出现错误，可以不用管它。
 
+> 如果出现下面的错误：
+
+```
+gulp: command not found
+```
+
+> 安装一下gulp
+
+```
+npm install -g gulp
+```
+
 ## 2. 启动 Appium-desktop
 
 运行 Appium.exe 命令：

@@ -47,6 +47,8 @@ npm run test
 
 ## 文档
 
+* 0.[脚本常用 API ](docs/api.md)
+
 * 1.[安装支持 AWTK 自动测试的 Appium Desktop](docs/how_to_install_appium_for_awtk.md)
 
 * 2.[集成 AWTK 自动测试引擎](docs/how_to_integrate_awtktk_ui_automation.md)
