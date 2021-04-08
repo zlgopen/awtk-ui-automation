@@ -10,7 +10,9 @@ appium 是用 nodejs 开发的，需要安装 [nodejs](https://nodejs.org/en/)�
 
 ### 1.1 下载
 
-Windows 版本可以下载这个：[Appium-windows-1.18.0-1（awtk-appium）.zip]()
+Windows 版本可以下载这个：Appium-windows-1.18.0-1（awtk-appium）.zip
+
+> 这个是内部 share 服务器中下载
 
 ### 1.2 解压
 
@@ -51,7 +53,7 @@ awtk-ui-automation
 
 界面效果如下：
 
-![](images/demo.png)
+![](../docs/images/demo.png)
 
 * 回到 appium-inspector, 输入下面的参数
 
@@ -62,8 +64,8 @@ awtk-ui-automation
 }
 ```
 
-![](images/inspector_2.png)
+![](../docs/images/inspector_2.png)
 
 * 然后点击"Start Session"，成功后可以看到下面的界面：
 
-![](images/inspector_3.png)
+![](../docs/images/inspector_3.png)
