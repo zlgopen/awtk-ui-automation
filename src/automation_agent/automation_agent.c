@@ -460,15 +460,21 @@ static ret_t automation_agent_on_get_focus_element(http_connection_t* c) {
   return RET_OK;
 }
 
-static ret_t automation_agent_on_click_element(http_connection_t* c) {
+static ret_t idle_click(const idle_info_t* info) {
   pointer_event_t evt;
+  widget_t* widget = WIDGET(info->ctx);
+
+  widget_dispatch(widget, pointer_event_init(&evt, EVT_CLICK, widget, 0, 0));
+
+  return RET_REMOVE;
+}
+
+static ret_t automation_agent_on_click_element(http_connection_t* c) {
   conf_doc_t* resp = c->resp;
   const char* id = object_get_prop_str(c->args, STR_ELEMENT_ID);
   widget_t* element = automation_agent_find_element(id);
   return_value_if_fail(element != NULL, RET_NOT_FOUND);
-
-  widget_dispatch(element, pointer_event_init(&evt, EVT_CLICK, element, 0, 0));
-
+  idle_add(idle_click, element);
   conf_doc_set_int(resp, STR_STATUS, 0);
 
   return RET_OK;
