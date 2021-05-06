@@ -121,7 +121,7 @@ static ret_t automation_agent_on_get_source(http_connection_t* c) {
   widget_to_xml(view, &str);
   view->children->size = 0;
   widget_destroy(view);
-
+  log_debug("source:%s\n", str.str);
   conf_doc_set_int(resp, STR_STATUS, 0);
   conf_doc_set_str(resp, STR_VALUE, str.str);
   str_reset(&str);
@@ -504,6 +504,7 @@ static ret_t automation_agent_on_touch_perform(http_connection_t* c) {
       y = conf_doc_get_int(c->req, path, 0);
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_DOWN, wm, x, y));
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_UP, wm, x, y));
+      log_debug("tap: %d %d\n", x, y);
     } else if(tk_str_eq(action, STR_PRESS)) {
       tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
       x = conf_doc_get_int(c->req, path, 0);
