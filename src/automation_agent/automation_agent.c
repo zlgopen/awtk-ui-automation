@@ -493,11 +493,11 @@ static ret_t automation_agent_on_touch_perform(http_connection_t* c) {
   return_value_if_fail(wm != NULL, RET_NOT_FOUND);
 
   memset(path, 0x00, sizeof(path));
-  for(i = 0; i < nr; i++) {
+  for (i = 0; i < nr; i++) {
     tk_snprintf(path, sizeof(path), "actions.[%d].action", i);
     action = conf_doc_get_str(c->req, path, NULL);
 
-    if(tk_str_eq(action, STR_TAP)) {
+    if (tk_str_eq(action, STR_TAP)) {
       tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
       x = conf_doc_get_int(c->req, path, 0);
       tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
@@ -505,19 +505,19 @@ static ret_t automation_agent_on_touch_perform(http_connection_t* c) {
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_DOWN, wm, x, y));
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_UP, wm, x, y));
       log_debug("tap: %d %d\n", x, y);
-    } else if(tk_str_eq(action, STR_PRESS)) {
+    } else if (tk_str_eq(action, STR_PRESS)) {
       tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
       x = conf_doc_get_int(c->req, path, 0);
       tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
       y = conf_doc_get_int(c->req, path, 0);
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_DOWN, wm, x, y));
-    } else if(tk_str_eq(action, STR_MOVE_TO)) {
+    } else if (tk_str_eq(action, STR_MOVE_TO)) {
       tk_snprintf(path, sizeof(path), "actions.[%d].options.x", i);
       x = conf_doc_get_int(c->req, path, 0);
       tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
       y = conf_doc_get_int(c->req, path, 0);
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_MOVE, wm, x, y));
-    } else if(tk_str_eq(action, STR_RELEASE)) {
+    } else if (tk_str_eq(action, STR_RELEASE)) {
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_UP, wm, x, y));
     } else {
       log_debug("not suported:%s\n", action);
@@ -676,15 +676,92 @@ static ret_t automation_agent_on_set_element_prop(http_connection_t* c) {
   return RET_OK;
 }
 
+/*https://github.com/admc/wd/blob/master/lib/special-keys.js*/
+static int32_t map_key(wchar_t c) {
+  /*TODO*/
+  switch (c) {
+    case 0xE003: {
+      return TK_KEY_BACKSPACE;
+    }
+    case 0xE004: {
+      return TK_KEY_TAB;
+    }
+    case 0xE006: {
+      return TK_KEY_RETURN;
+    }
+    case 0xE012: {
+      return TK_KEY_LEFT;
+    }
+    case 0xE013: {
+      return TK_KEY_UP;
+    }
+    case 0xE014: {
+      return TK_KEY_RIGHT;
+    }
+    case 0xE015: {
+      return TK_KEY_DOWN;
+    }
+    case 0xE010: {
+      return TK_KEY_END;
+    }
+    case 0xE011: {
+      return TK_KEY_HOME;
+    }
+    case 0xE00D: {
+      return TK_KEY_SPACE;
+    }
+    case 0xE00E: {
+      return TK_KEY_PAGEUP;
+    }
+    case 0xE00F: {
+      return TK_KEY_PAGEDOWN;
+    }
+    default: {
+      if (c >= 0xE031 && c <= 0xE03C) {
+        return TK_KEY_F1 + (c - 0xE031);
+      } else if (c >= 0xE000 && c < 0xE0ff) {
+        log_debug("not supported key:%x\n", c);
+        return TK_KEY_SPACE;
+      } else {
+        return -1;
+      }
+    }
+  }
+}
+
 static ret_t automation_agent_on_element_input(http_connection_t* c) {
-  im_commit_event_t evt;
   conf_doc_t* resp = c->resp;
   const char* id = object_get_prop_str(c->args, STR_ELEMENT_ID);
   const char* value = conf_doc_get_str(c->req, "text", "");
   widget_t* element = automation_agent_find_element(id);
   return_value_if_fail(element != NULL, RET_NOT_FOUND);
 
-  widget_dispatch(element, im_commit_event_init(&evt, value, FALSE));
+  if (value != NULL) {
+    char tstr[32];
+    uint32_t i = 0;
+    wstr_t str;
+    wstr_init(&str, 0);
+    wstr_set_utf8(&str, value);
+
+    memset(tstr, 0x00, sizeof(tstr));
+    for (i = 0; i < str.size; i++) {
+      wchar_t c = str.str[i];
+      int32_t key = map_key(c);
+      if (key < 0) {
+        im_commit_event_t evt;
+        tk_utf8_from_utf16_ex(&c, 1, tstr, sizeof(tstr));
+        widget_dispatch(element, im_commit_event_init(&evt, tstr, FALSE));
+        log_debug("commit text: %s\n", tstr);
+      } else if (key > 0) {
+        key_event_t evt;
+        widget_dispatch(element, key_event_init(&evt, EVT_KEY_DOWN, element, key));
+        widget_dispatch(element, key_event_init(&evt, EVT_KEY_UP, element, key));
+        log_debug("send key event: %d\n", key);
+      }
+    }
+    wstr_reset(&str);
+  }
+
   conf_doc_set_int(resp, STR_STATUS, 0);
 
   return RET_OK;
@@ -769,7 +846,7 @@ static const http_route_entry_t s_automation_agent_routes[] = {
 
 static httpd_t* s_httpd;
 ret_t automation_agent_start(int port) {
-  httpd_t* httpd = httpd_create(8000, 1); 
+  httpd_t* httpd = httpd_create(8000, 1);
   return_value_if_fail(httpd != NULL, RET_BAD_PARAMS);
 
   httpd_set_routes(httpd, s_automation_agent_routes, ARRAY_SIZE(s_automation_agent_routes));
@@ -786,4 +863,3 @@ ret_t automation_agent_stop(void) {
 
   return RET_OK;
 }
-
