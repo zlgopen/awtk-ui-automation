@@ -754,8 +754,8 @@ static ret_t automation_agent_on_element_input(http_connection_t* c) {
         log_debug("commit text: %s\n", tstr);
       } else if (key > 0) {
         key_event_t evt;
-        widget_dispatch(element, key_event_init(&evt, EVT_KEY_DOWN, element, key));
-        widget_dispatch(element, key_event_init(&evt, EVT_KEY_UP, element, key));
+        widget_on_keydown(element, (key_event_t*)key_event_init(&evt, EVT_KEY_DOWN, element, key));
+        widget_on_keyup(element, (key_event_t*)key_event_init(&evt, EVT_KEY_UP, element, key));
         log_debug("send key event: %d\n", key);
       }
     }
