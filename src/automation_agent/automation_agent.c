@@ -518,6 +518,8 @@ static ret_t automation_agent_on_touch_perform(http_connection_t* c) {
       y = conf_doc_get_int(c->req, path, 0);
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_MOVE, wm, x, y));
     } else if (tk_str_eq(action, STR_RELEASE)) {
+      x = window_manager_get_pointer_x(wm);
+      y = window_manager_get_pointer_y(wm);
       window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_UP, wm, x, y));
     } else {
       log_debug("not suported:%s\n", action);
