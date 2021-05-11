@@ -55,14 +55,30 @@
 #define STR_ELEMENT_ID "element"
 #define STR_SESSION_ID "session"
 #define STR_ACCESS_ID "accessibility id"
+
+#define STR_WM "wm"
 #define STR_CURRENT_WINDOW "current_window"
 
 static widget_t* automation_agent_find_element(const char* name) {
   widget_t* wm = window_manager();
+  const char* widget_name = strchr(name, '.');
   widget_t* win = window_manager_get_top_window(wm);
+
+  if (tk_str_eq(STR_WM, name)) {
+    return wm;
+  }
 
   if (tk_str_eq(win->name, name) || tk_str_eq(STR_CURRENT_WINDOW, name)) {
     return win;
+  }
+
+  if (widget_name != NULL) {
+    str_t win_name;
+    str_init(&win_name, 0);
+    str_set_with_len(&win_name, name, widget_name - name);
+    win = widget_child(wm, win_name.str);
+    str_reset(&win_name);
+    name = widget_name + 1;
   }
 
   return widget_lookup(win, name, TRUE);
@@ -241,10 +257,15 @@ static ret_t automation_agent_on_set_timeouts(http_connection_t* c) {
   return RET_OK;
 }
 
+static ret_t idle_back(const idle_info_t* info) {
+  window_manager_back(window_manager());
+  return RET_REMOVE;
+}
+
 static ret_t automation_agent_on_back(http_connection_t* c) {
   conf_doc_t* resp = c->resp;
 
-  window_manager_back(window_manager());
+  idle_add(idle_back, NULL);
   conf_doc_set_int(resp, STR_STATUS, 0);
 
   return RET_OK;
