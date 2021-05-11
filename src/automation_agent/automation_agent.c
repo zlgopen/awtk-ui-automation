@@ -76,7 +76,10 @@ static widget_t* automation_agent_find_element(const char* name) {
     str_t win_name;
     str_init(&win_name, 0);
     str_set_with_len(&win_name, name, widget_name - name);
-    win = widget_child(wm, win_name.str);
+
+    if (win_name.size > 0) {
+      win = widget_child(wm, win_name.str);
+    }
     str_reset(&win_name);
     name = widget_name + 1;
   }
