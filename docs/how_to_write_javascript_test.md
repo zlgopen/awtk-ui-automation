@@ -183,14 +183,21 @@ driver 对象是测试程序客户端的对象，通过它调用测试函数。
 * 为方便阅读代码，对每一个控件的测试，放到一行内，以 elementById 打头：
 
 ```js
-    return driver.elementById('info').setText("AWTK")
+ return driver.elementById('info').setText("AWTK")
                  .elementById('info').text().should.become("AWTK");
 ```      
 
-* 打开/关闭窗口后，调用sleep(1000)，确保窗口动画完成。
+* 打开/关闭窗口后，调用 sleep(1000)，确保窗口动画完成。
 
 ```js
-      it("click new back", function () {
-            return driver.elementById('new').click().sleep(1000).back().sleep(1000)
-      });
+ return driver.elementById('new').click().sleep(1000).back().sleep(1000)
+
 ```      
+
+* 窗口和控件重名的问题。比如窗口名为 fullscreen，其上有一个控件名也为 fullscreen。可以用下面两种方式定位控件。
+   * fullscreen.fullscreen
+   * .fullscreen
+
+```js
+ .elementById('.fullscreen').click().sleep(100)
+```  
