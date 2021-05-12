@@ -488,6 +488,7 @@ static ret_t idle_click(const idle_info_t* info) {
   pointer_event_t evt;
   widget_t* widget = WIDGET(info->ctx);
 
+  widget_set_focused(widget, TRUE);
   widget_dispatch(widget, pointer_event_init(&evt, EVT_CLICK, widget, 0, 0));
 
   return RET_REMOVE;
@@ -780,8 +781,15 @@ static ret_t automation_agent_on_element_input(http_connection_t* c) {
         log_debug("commit text: %s\n", tstr);
       } else if (key > 0) {
         key_event_t evt;
-        widget_on_keydown(element, (key_event_t*)key_event_init(&evt, EVT_KEY_DOWN, element, key));
-        widget_on_keyup(element, (key_event_t*)key_event_init(&evt, EVT_KEY_UP, element, key));
+        if (tk_str_eq(id, STR_WM)) {
+          window_manager_dispatch_input_event(element,
+                                              key_event_init(&evt, EVT_KEY_DOWN, element, key));
+          window_manager_dispatch_input_event(element,
+                                              key_event_init(&evt, EVT_KEY_UP, element, key));
+        } else {
+          widget_on_keydown(element, (key_event_t*)key_event_init(&evt, EVT_KEY_DOWN, element, key));
+          widget_on_keyup(element, (key_event_t*)key_event_init(&evt, EVT_KEY_UP, element, key));
+        }
         log_debug("send key event: %d\n", key);
       }
     }
