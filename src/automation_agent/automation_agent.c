@@ -756,6 +756,23 @@ static int32_t map_key(wchar_t c) {
   }
 }
 
+static ret_t idle_send_key(const idle_info_t* info) {
+  key_event_t evt;
+  int32_t key = tk_pointer_to_int(info->ctx);
+  widget_t* widget = WIDGET(info->extra_ctx);
+
+  if (widget == NULL) {
+    widget = window_manager();
+    window_manager_dispatch_input_event(widget, key_event_init(&evt, EVT_KEY_DOWN, widget, key));
+    window_manager_dispatch_input_event(widget, key_event_init(&evt, EVT_KEY_UP, widget, key));
+  } else {
+    widget_on_keydown(widget, (key_event_t*)key_event_init(&evt, EVT_KEY_DOWN, widget, key));
+    widget_on_keyup(widget, (key_event_t*)key_event_init(&evt, EVT_KEY_UP, widget, key));
+  }
+
+  return RET_REMOVE;
+}
+
 static ret_t automation_agent_on_element_input(http_connection_t* c) {
   conf_doc_t* resp = c->resp;
   const char* id = object_get_prop_str(c->args, STR_ELEMENT_ID);
@@ -780,15 +797,13 @@ static ret_t automation_agent_on_element_input(http_connection_t* c) {
         widget_dispatch(element, im_commit_event_init(&evt, tstr, FALSE));
         log_debug("commit text: %s\n", tstr);
       } else if (key > 0) {
-        key_event_t evt;
         if (tk_str_eq(id, STR_WM)) {
-          window_manager_dispatch_input_event(element,
-                                              key_event_init(&evt, EVT_KEY_DOWN, element, key));
-          window_manager_dispatch_input_event(element,
-                                              key_event_init(&evt, EVT_KEY_UP, element, key));
+          idle_add(idle_send_key, tk_pointer_from_int(key));
         } else {
-          widget_on_keydown(element, (key_event_t*)key_event_init(&evt, EVT_KEY_DOWN, element, key));
-          widget_on_keyup(element, (key_event_t*)key_event_init(&evt, EVT_KEY_UP, element, key));
+          uint32_t id = idle_add(idle_send_key, tk_pointer_from_int(key));
+          idle_info_t* info = (idle_info_t*)idle_find(id);
+          assert(info != NULL);
+          info->extra_ctx = element;
         }
         log_debug("send key event: %d\n", key);
       }
