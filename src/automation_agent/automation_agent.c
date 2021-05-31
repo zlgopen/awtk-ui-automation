@@ -773,6 +773,77 @@ static ret_t idle_send_key(const idle_info_t* info) {
   return RET_REMOVE;
 }
 
+#define KEY_CMD_OR_CTRL "cmd_or_ctrl+"
+#define KEY_SHIFT "shift+"
+#define SHORTCUT_COPY "<cmd_or_ctrl+c>"
+#define SHORTCUT_CUT "<cmd_or_ctrl+x>"
+#define SHORTCUT_PASTE "<cmd_or_ctrl+v>"
+#define SHORTCUT_UNDO "<cmd_or_ctrl+z>"
+#define SHORTCUT_REDO "<cmd_or_ctrl+y>"
+#define SHORTCUT_SELECT_ALL "<cmd_or_ctrl+a>"
+#define SHORTCUT_SELECT_LEFT "<shift+left>"
+#define SHORTCUT_SELECT_RIGHT "<shift+right>"
+#define SHORTCUT_SELECT_DOWN "<shift+down>"
+#define SHORTCUT_SELECT_UP "<shift+up>"
+
+static ret_t widget_send_special_key(widget_t* widget, const char* value) {
+  key_event_t evt;
+  int32_t key = 0;
+  bool_t shift = FALSE;
+  bool_t cmd = FALSE;
+  bool_t ctrl = FALSE;
+  return_value_if_fail(value != NULL, RET_BAD_PARAMS);
+
+  if (strstr(value, KEY_CMD_OR_CTRL) != NULL) {
+#ifdef MACOS
+    cmd = TRUE;
+#else
+    ctrl = TRUE;
+#endif /*MACOS*/
+  }
+  if (strstr(value, KEY_SHIFT) != NULL) {
+    shift = TRUE;
+  }
+
+  if (strstr(value, "+c") != NULL) {
+    key = TK_KEY_c;
+  } else if (strstr(value, "+x") != NULL) {
+    key = TK_KEY_x;
+  } else if (strstr(value, "+v") != NULL) {
+    key = TK_KEY_v;
+  } else if (strstr(value, "+z") != NULL) {
+    key = TK_KEY_z;
+  } else if (strstr(value, "+y") != NULL) {
+    key = TK_KEY_y;
+  } else if (strstr(value, "+a") != NULL) {
+    key = TK_KEY_a;
+  } else if (strstr(value, "+left") != NULL) {
+    key = TK_KEY_LEFT;
+  } else if (strstr(value, "+right") != NULL) {
+    key = TK_KEY_RIGHT;
+  } else if (strstr(value, "+up") != NULL) {
+    key = TK_KEY_UP;
+  } else if (strstr(value, "+down") != NULL) {
+    key = TK_KEY_DOWN;
+  } else {
+    return RET_CONTINUE;
+  }
+
+  key_event_init(&evt, EVT_KEY_DOWN, widget, key);
+  evt.shift = shift;
+  evt.cmd = cmd;
+  evt.ctrl = ctrl;
+  widget_on_keydown(widget, &evt);
+
+  key_event_init(&evt, EVT_KEY_UP, widget, key);
+  evt.shift = shift;
+  evt.cmd = cmd;
+  evt.ctrl = ctrl;
+  widget_on_keydown(widget, &evt);
+
+  return RET_OK;
+}
+
 static ret_t automation_agent_on_element_input(http_connection_t* c) {
   conf_doc_t* resp = c->resp;
   const char* id = object_get_prop_str(c->args, STR_ELEMENT_ID);
@@ -780,7 +851,9 @@ static ret_t automation_agent_on_element_input(http_connection_t* c) {
   widget_t* element = automation_agent_find_element(id);
   return_value_if_fail(element != NULL, RET_NOT_FOUND);
 
-  if (value != NULL) {
+  if (widget_send_special_key(element, value) == RET_OK) {
+    log_debug("special key:%s\n", value);
+  } else if (value != NULL) {
     char tstr[32];
     uint32_t i = 0;
     wstr_t str;
@@ -794,7 +867,11 @@ static ret_t automation_agent_on_element_input(http_connection_t* c) {
       if (key < 0) {
         im_commit_event_t evt;
         tk_utf8_from_utf16_ex(&c, 1, tstr, sizeof(tstr));
-        widget_dispatch(element, im_commit_event_init(&evt, tstr, FALSE));
+        if (tk_str_eq(id, STR_WM)) {
+          input_method_commit_text(input_method(), tstr);
+        } else {
+          widget_dispatch(element, im_commit_event_init(&evt, tstr, FALSE));
+        }
         log_debug("commit text: %s\n", tstr);
       } else if (key > 0) {
         if (tk_str_eq(id, STR_WM)) {
