@@ -570,14 +570,17 @@ static ret_t automation_agent_on_clear_element(http_connection_t* c) {
 
 static ret_t automation_agent_on_get_element_text(http_connection_t* c) {
   str_t str;
+  value_t v;
   conf_doc_t* resp = c->resp;
   const char* id = object_get_prop_str(c->args, STR_ELEMENT_ID);
   widget_t* element = automation_agent_find_element(id);
   return_value_if_fail(element != NULL, RET_NOT_FOUND);
 
   str_init(&str, 0);
+  if(widget_get_prop(element, WIDGET_PROP_TEXT, &v) == RET_OK) {
+    str_from_value(&str, &v);
+  }
   conf_doc_set_int(resp, STR_STATUS, 0);
-  str_from_wstr(&str, element->text.str);
   conf_doc_set_str(resp, STR_VALUE, str.str);
   str_reset(&str);
 
