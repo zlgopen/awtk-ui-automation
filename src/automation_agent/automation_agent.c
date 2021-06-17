@@ -541,7 +541,10 @@ static ret_t automation_agent_on_touch_perform(http_connection_t* c) {
       x = conf_doc_get_int(c->req, path, 0);
       tk_snprintf(path, sizeof(path), "actions.[%d].options.y", i);
       y = conf_doc_get_int(c->req, path, 0);
-      window_manager_dispatch_input_event(wm, pointer_event_init(&evt, EVT_POINTER_MOVE, wm, x, y));
+
+      pointer_event_init(&evt, EVT_POINTER_MOVE, wm, x, y);
+      evt.pressed = TRUE;
+      window_manager_dispatch_input_event(wm, (event_t*)(&evt));
     } else if (tk_str_eq(action, STR_RELEASE)) {
       x = window_manager_get_pointer_x(wm);
       y = window_manager_get_pointer_y(wm);
