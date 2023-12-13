@@ -22,6 +22,7 @@
 #include "base64.h"
 #include "tkc/utils.h"
 #include "base/input_method.h"
+#include "base/main_loop.h"
 #include "httpd/http_route.h"
 #include "httpd/http_parser.h"
 #include "automation_agent.h"
